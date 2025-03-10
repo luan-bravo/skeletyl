@@ -330,7 +330,7 @@ enum custom_keycodes {
     LT3_SPC = LT(3,KC_SPC),
     LT2_TAB = LT(2,KC_TAB),
     DF_QWERTY = DF(0),
-    DF_COLEMAK = DF(1),
+    // DF_COLEMAK = DF(1),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -345,24 +345,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                        KC_ESC,  LT3_SPC, KC_BSPC,    KC_DEL, LT2_TAB,  KC_ENT
         //                           |--------+--------+--------|  |--------+--------+--------|
     ),
-    [_COLEMAK] = LAYOUT_split_3x5_3(
-        //|--------------------------------------------|                    |--------------------------------------------|
-            CSA_Q,   CA_W,    CS_F,    KC_P,    KC_G,                         KC_J,    KC_L,    CS_U,    CA_Y,    CSA_SCLN,
-        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
-            LGUI_A,  LALT_R,  LCTL_S,  _LSFT_T, KC_D,                         KC_H,    RSFT_N,  RCTL_E,  RALT_I,  RGUI_O,
-        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
-            KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_K,    KC_M,    M_COMM,  M_DOT,  KC_SLSH,
-        //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
-                                       KC_ESC,  LT3_SPC, KC_BSPC,    KC_DEL, LT2_TAB,  KC_ENT
-        //                           |--------+--------+--------|  |--------+--------+--------|
-    ),
     [_NAVIGATION] = LAYOUT_split_3x5_3(
         //|--------------------------------------------|                    |--------------------------------------------|
             CSA_F1,  CA_F2,   CS_F3,   KC_F4,   KC_F5,                        KC_F6,   KC_F7,   CS_F8,  CA_F9,   CSA_F10,
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
          LGUI_FIND,LALT_HOME,LCTL_PGUP,LSFT_PGDN,KC_END,                     KC_LEFT,RSFT_DOWN,RCTL_UP,RALT_RGHT,RGUI_F11,
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
-         DF_QWERTY,DF_COLEMAK,KC_VOLD,KC_VOLU, QK_BOOT,                      KC_MUTE, KC_MPLY, KC_MPRV, KC_MNXT, KC_F12,
+          DF_QWERTY,  XXX,   KC_VOLD,  KC_VOLU, QK_BOOT,                      KC_MUTE, KC_MPLY, KC_MPRV, KC_MNXT, KC_F12,
         //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
                                         VVV,    TG(4),    VVV,         VVV,    VVV,     VVV
         //                           |--------+--------+--------|  |--------+--------+--------|
@@ -389,4 +378,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                         VVV,    TG(4),    VVV,        VVV,    TG(4),    VVV
         //                           |--------+--------+--------|  |--------+--------+--------|
     ),
+    // TODO: add gaming layer
+    // ESDF = WASD
+    // Q = tab; A = shift; Z = control;
+    // to figure the rest of the keybidings when making it
 };

@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include "features/caps_word.h"
-
 #include "print.h"
+
 
 // Layers
 enum layers {
@@ -28,6 +28,9 @@ enum layers {
     _NAVIGATION,
     _SPECIAL,
     _MOUSE,
+    _NAKED,
+    _GAME,
+    _GAMERGT,
 };
 
 // static uint16_t default_animation = RGB_MATRIX_CYCLE_SPIRAL;
@@ -46,9 +49,9 @@ static bool is_macro_recording = false;
 // Permissive hold per key
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case LT(3, KC_SPC):
+    case LT(_SPECIAL, KC_SPC):
       return true; // Enable permissive hold
-    case LT(2, KC_TAB):
+    case LT(_NAVIGATION, KC_TAB):
       return true;
     default:
       return false; // Disable permissive hold
@@ -58,9 +61,9 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 // Tapping force hold per key
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case LT(3, KC_SPC):
+        case LT(_SPECIAL, KC_SPC):
             return 0; // Enable force hold
-        case LT(2, KC_TAB):
+        case LT(_NAVIGATION, KC_TAB):
             return 0;
         default:
             return QUICK_TAP_TERM; // Disable force hold
@@ -87,7 +90,6 @@ void matrix_scan_user(void) {
     if (is_keyboard_master()) {
         // idle_timer needs to be set one time
         if (idle_timer == 0) idle_timer = timer_read();
-
         if (led_on && timer_elapsed(idle_timer) > 30000) {
           halfmin_counter++;
           idle_timer = timer_read();
@@ -127,7 +129,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // Caps word
     if (!process_caps_word(keycode, record)) { return false; }
-
     // Macros
     const uint8_t mods = get_mods();
     static uint8_t backstepCounter = 0;
@@ -135,7 +136,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
       case M_KEYMAP:
           if (record->event.pressed) {
-              SEND_STRING("https://raw.githubusercontent.com/dlford/qmk_firmware/master/keyboards/crkbd/keymaps/dlford/legends.svg");
+              SEND_STRING("https://github.com/luan-bravo/");
           }
           return false;
       case M_COMM:
@@ -207,7 +208,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           set_mods(mods);
           return false;
     }
-
     return true;
 }
 
@@ -239,41 +239,43 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // }
 
 // Dynamic Macro Recording Backlight
-void dynamic_macro_record_start_user(int8_t direction) {
-    is_macro_recording = true;
+bool dynamic_macro_record_start_user(int8_t direction) {
+    bool is_macro_recording = true;
+    return is_macro_recording;
 }
 
-void dynamic_macro_record_end_user(int8_t direction) {
+bool dynamic_macro_record_end_user(int8_t direction) {
     is_macro_recording = false;
+    return is_macro_recording;
 }
 
-// Indicators
-// bool rgb_matrix_indicators_user(void) {
-//     if (host_keyboard_led_state().caps_lock || caps_word_enabled) {
-//         // Left master
-//         rgb_matrix_set_color(3, RGB_RED);
-//         // Right master
-//         rgb_matrix_set_color(21, RGB_RED);
-//     }
-//     if (is_macro_recording) {
-//         // Left master
-//         rgb_matrix_set_color(4, RGB_ORANGE);
-//         // Right master
-//         rgb_matrix_set_color(22, RGB_ORANGE);
-//     }
-//     if (default_layer_state - 1 == _COLEMAK) {
-//         // Left master
-//         rgb_matrix_set_color(5, RGB_GREEN);
-//         // Right master
-//         rgb_matrix_set_color(23, RGB_GREEN);
-//     }
-//     return false;
-// }
+/*// Indicators
+bool rgb_matrix_indicators_user(void) {
+    if (host_keyboard_led_state().caps_lock || caps_word_enabled) {
+        // Left master
+        rgb_matrix_set_color(3, RGB_RED);
+        // Right master
+        rgb_matrix_set_color(21, RGB_RED);
+    }
+    if (is_macro_recording) {
+        // Left master
+        rgb_matrix_set_color(4, RGB_ORANGE);
+        // Right master
+        rgb_matrix_set_color(22, RGB_ORANGE);
+    }
+    if (default_layer_state - 1 == _QWERTY) {
+        // Left master
+        rgb_matrix_set_color(5, RGB_GREEN);
+        // Right master
+        rgb_matrix_set_color(23, RGB_GREEN);
+    }
+    return false;
+}*/
 
 // Quantum keys / Abbreviations
 enum custom_keycodes {
     VVV = KC_TRNS,
-    XXX = KC_NO,
+    // XXX = KC_NO, // Alias already defined somewhere else
     CSA_Q = MEH_T(KC_Q),
     CSA_F1 = MEH_T(KC_F1),
     CSA_1 = MEH_T(KC_1),
@@ -316,13 +318,25 @@ enum custom_keycodes {
     RGUI_SCLN = RGUI_T(KC_SCLN),
     RGUI_F11 = RGUI_T(KC_F11),
     RGUI_QUOT = RGUI_T(KC_QUOT),
-    LT3_SPC = LT(3,KC_SPC),
-    LT2_TAB = LT(2,KC_TAB),
-    DF_QWERTY = DF(0),
-    // DF_COLEMAK = DF(1),
+    NVG_TAB = LT(_NAVIGATION,KC_TAB),
+    NVG_ESC = LT(_NAVIGATION,KC_ESC),
+    SPL_SPC = LT(_SPECIAL,KC_SPC),
+    SPL_BSPC = LT(_SPECIAL,KC_BSPC),
+    GRT_TAB = LT(_GAMERGT,KC_TAB),
+    QWE_DEL = LT(_QWERTY,KC_DEL),
+    // DF_QWERTY = DF(_QUERTY), // not necessary now that there is no colemak layer?
+    TG_QWE = TG(_QWERTY),
+    TG_NAV = TG(_NAVIGATION),
+    TG_SPL = TG(_SPECIAL),
+    TG_MSE = TG(_MOUSE),
+    TG_NKD = TG(_NAKED),
+    TG_GME = TG(_GAME),
+    TG_GRT = TG(_GAMERGT),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+    //TODO: Make both-shifts-temp-capslock thing act quicker
+        // maybe also make LT layers quicker
     [_QWERTY] = LAYOUT_split_3x5_3(
         //|--------------------------------------------|                    |--------------------------------------------|
             CSA_Q,   CA_W,    CS_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    CS_I,    CA_O,    CSA_P,
@@ -331,7 +345,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
             KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M,    M_COMM,  M_DOT,  KC_SLSH,
         //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
-                                       KC_ESC,  LT3_SPC, KC_BSPC,    KC_DEL, LT2_TAB,  KC_ENT
+                                       KC_ESC,  SPL_SPC, KC_BSPC,    KC_DEL, NVG_TAB,  KC_ENT
+                                  //LSFT_ESC, SPL_SPC, RCTL_BSPC,  RSFT_DEL, NVG_TAB,  RCTL_ENT
         //                           |--------+--------+--------|  |--------+--------+--------|
     ),
     [_NAVIGATION] = LAYOUT_split_3x5_3(
@@ -340,9 +355,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
          LGUI_FIND,LALT_HOME,LCTL_PGUP,LSFT_PGDN,KC_END,                     KC_LEFT,RSFT_DOWN,RCTL_UP,RALT_RGHT,RGUI_F11,
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
-          DF_QWERTY,  XXX,   KC_VOLD,  KC_VOLU, QK_BOOT,                      KC_MUTE, KC_MPLY, KC_MPRV, KC_MNXT, KC_F12,
+            TG_MSE, TG_NKD,  KC_VOLD, KC_VOLU, QK_BOOT,                      KC_MUTE, KC_MPLY, KC_MPRV, KC_MNXT, KC_F12,
+        //DF_QWERTY,  XXX,   KC_VOLD,  KC_VOLU, QK_BOOT,                      KC_MUTE, KC_MPLY, KC_MPRV, KC_MNXT, KC_F12,
         //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
-                                        VVV,    TG(4),    VVV,         VVV,    VVV,     VVV
+                                     //VVV,   TG(_MOUSE), VVV,        VVV,    VVV,     VVV
+                                      TG_QWE,  TG_MSE,  TG_GME,        VVV,   TG_MSE,   VVV
         //                           |--------+--------+--------|  |--------+--------+--------|
     ),
     [_SPECIAL] = LAYOUT_split_3x5_3(
@@ -351,24 +368,56 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
            LGUI_GRV,KC_LALT,LCTL_LBRC,LSFT_RBRC,KC_LPRN,                     KC_RPRN,RSFT_MINS,RCTL_EQL,RALT_BSLS,RGUI_QUOT,
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
-           KC_DQUO, KC_CAPS, KC_LCBR, KC_RCBR, TG(_MOUSE),                    EE_CLR, KC_UNDS, KC_PLUS, KC_PIPE, KC_TILD,
+           KC_DQUO, KC_CAPS, KC_LCBR, KC_RCBR,TG_GME,                         EE_CLR, KC_UNDS, KC_PLUS, KC_PIPE, KC_TILD,
         //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
-                                        VVV,     VVV,     VVV,        VVV,    TG(4),    VVV
+                                        VVV,     VVV,     VVV,         VVV, TG_MSE, VVV
         //                           |--------+--------+--------|  |--------+--------+--------|
     ),
+    // TODO: _FUNC
+        // Brightness controll, mic mute, screen change, bluetooth/wifi toggle, printscreen button, etc.
+    // TODO: Fix mouse speed (change acc curve, don't know to which one yet)
     [_MOUSE] = LAYOUT_split_3x5_3(
         //|--------------------------------------------|                    |--------------------------------------------|
             KC_WH_U, KC_WH_L, KC_MS_U, KC_WH_R, DM_REC1,                      KC_WSTP, KC_ACL2, KC_ACL1, KC_ACL0, KC_WFWD,
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
             KC_WH_D, KC_MS_L, KC_MS_D, KC_MS_R, DM_PLY1,                      KC_WREF, KC_BTN1, KC_BTN2, KC_BTN3, KC_WBAK,
         //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
-           M_KEYMAP,KC_BTN3, KC_BTN2, KC_BTN1,  XXX,                          XXX,     XXX,     XXX,     XXX,     XXX,
+           M_KEYMAP, KC_BTN3, KC_BTN2, KC_BTN1,  XXX,                          XXX,     XXX,     XXX,     XXX,     XXX,
         //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
-                                        VVV,    TG(4),    VVV,        VVV,    TG(4),    VVV
+                                         VVV,   TG_QWE,   VVV,        VVV,    TG_QWE,   VVV
         //                           |--------+--------+--------|  |--------+--------+--------|
     ),
-    // TODO: add gaming layer
-    // ESDF = WASD
-    // Q = tab; A = shift; Z = control;
-    // to figure the rest of the keybidings when making it
+    [_NAKED] = LAYOUT_split_3x5_3(
+        //|--------------------------------------------|                    |--------------------------------------------|
+            KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,
+        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
+            KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L,  KC_SCLN,
+        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
+            KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M,  KC_COMM,  KC_DOT, KC_SLSH,
+        //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
+                                       KC_ESC,  KC_SPC, SPL_BSPC,    KC_DEL,  NVG_TAB, KC_ENT
+        //                           |--------+--------+--------|  |--------+--------+--------|
+    ),
+    [_GAME] = LAYOUT_split_3x5_3(
+        //|--------------------------------------------|                    |--------------------------------------------|
+            NVG_ESC,  KC_Q,    KC_W,    KC_E,    KC_R,                         KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,
+        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
+            GRT_TAB, KC_A,    KC_S,    KC_D,    KC_F,                         KC_G,    KC_H,    KC_J,    KC_K,    KC_L,
+        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
+           SPL_BSPC,  KC_Z,    KC_X,    KC_C,    KC_V,                         KC_B,    KC_N,    KC_M,  KC_COMM,  KC_DOT,
+        //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
+                                       KC_LSFT, KC_SPC, KC_LCTL,     QWE_DEL, NVG_TAB, KC_ENT
+        //                           |--------+--------+--------|  |--------+--------+--------|
+    ),
+    [_GAMERGT] = LAYOUT_split_3x5_3(
+        //|--------------------------------------------|                    |--------------------------------------------|
+            KC_O,    KC_I,    KC_U,    KC_Y,   KC_T,                           XXX,     XXX,      XXX,     XXX,    XXX,
+        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
+            KC_L,    KC_K,    KC_J,    KC_H,    KC_G,                          XXX,     XXX,      XXX,     XXX,    XXX,
+        //|--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------|
+            KC_DOT,  KC_COMM, KC_M,    KC_N,    KC_B,                          XXX,     XXX,      XXX,     XXX,    XXX,
+        //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|
+                                      KC_ENT,  NVG_TAB,  QWE_DEL,     XXX,     XXX,     XXX
+        //                           |--------+--------+--------|  |--------+--------+--------|
+    ),
 };

@@ -5,6 +5,10 @@ SRC += features/caps_word.c
 #   change yes to no to disable
 #
 # if this doesn't work, see here: https://github.com/tmk/tmk_keyboard/wiki/FAQ#nkro-doesnt-work
+
+SPLIT_KEYBOARD = yes
+EE_HANDS = yes
+
 DYNAMIC_MACRO_ENABLE = yes  # Create macros on the fly
 CONSOLE_ENABLE=yes
 INDICATOR_LIGHTS = yes      # Enable indicator lights for caps lock, etc.
